@@ -34,9 +34,11 @@ unsigned long lastDownDebounceTime = 0;
 unsigned long lastUpDebounceTime = 0;
 unsigned long debounceDelay = 50;
 
+void displayInfo();
+void listenChannelDownButton();
+void listenChannelUpButton();
 void updateRDS();
 void updateLCD();
-void displayInfo();
 
 LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
 Si4703_Breakout radio(resetPin, SDIO, SCLK);
@@ -75,39 +77,9 @@ void setup()
 
 void loop()
 { 
-  // button commands
-  int downButtonReading = digitalRead(channelDown);
-  int upButtonReading = digitalRead(channelUp);
-  
-  if (downButtonReading != lastDownButtonState) {
-    lastDownDebounceTime = millis();
-  }
-  if (upButtonReading != lastUpButtonState) {
-    lastUpDebounceTime = millis();
-  }
 
-  if ((millis() - lastUpDebounceTime) > debounceDelay) {
-    if (downButtonReading != downButtonState) {
-      downButtonState = downButtonReading;
-      if (downButtonState == HIGH) {
-        channel = radio.seekDown();
-        displayInfo();
-      }
-    }
-  }
-
-  if ((millis() - lastDownDebounceTime) > debounceDelay) {
-    if (upButtonReading != upButtonState) {
-      upButtonState = upButtonReading;
-      if (upButtonState == HIGH) {
-        channel = radio.seekUp();
-        displayInfo();
-      }
-    }
-  }
-
-  lastDownButtonState = downButtonReading;
-  lastUpButtonState = upButtonReading;
+  listenChannelDownButton();
+  listenChannelUpButton();
   
   // keyboard serial commands
   if (Serial.available())
@@ -163,6 +135,49 @@ void loop()
 //    timer = millis();
 //    updateRDS();
 //  }
+}
+
+void listenChannelDownButton()
+{
+    // Channel down button listener
+  int downButtonReading = digitalRead(channelDown);
+  
+  if (downButtonReading != lastDownButtonState) {
+    lastDownDebounceTime = millis();
+  }
+  
+  if ((millis() - lastDownDebounceTime) > debounceDelay) {
+    if (downButtonReading != downButtonState) {
+      downButtonState = downButtonReading;
+      if (downButtonState == HIGH) {
+        channel = radio.seekDown();
+        displayInfo();
+      }
+    }
+  }
+
+  lastDownButtonState = downButtonReading;
+}
+
+void listenChannelUpButton() {
+  // Channel up button listener
+  int upButtonReading = digitalRead(channelUp);
+
+  if (upButtonReading != lastUpButtonState) {
+    lastUpDebounceTime = millis();
+  }
+  
+  if ((millis() - lastUpDebounceTime) > debounceDelay) {
+    if (upButtonReading != upButtonState) {
+      upButtonState = upButtonReading;
+      if (upButtonState == HIGH) {
+        channel = radio.seekUp();
+        displayInfo();
+      }
+    }
+  }
+
+  lastUpButtonState = upButtonReading;
 }
 
 void updateRDS()
