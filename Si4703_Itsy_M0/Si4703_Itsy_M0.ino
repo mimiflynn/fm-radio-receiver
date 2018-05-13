@@ -24,9 +24,12 @@ bool updatingRDS = false;
 uint32_t timer = millis();
 
 // button controls
-//int channelDown = 4;
-//int channelUp = 3;
-//int val = 0;
+int channelDown = 4;
+int channelUp = 3;
+int buttonState;
+int lastButtonState = LOW;
+unsigned long lastDebounceTime = 0;
+unsigned long debounceDelay = 50;
 
 void updateRDS();
 void updateLCD();
@@ -39,10 +42,10 @@ void setup()
 {
   Serial.begin(9600);
   // define pushbutton pins as inputs
-//  pinMode(channelDown,INPUT);
-//  pinMode(channelUp,INPUT);
+  pinMode(channelDown,INPUT);
+  pinMode(channelUp,INPUT);
 
-  delay(1000); //delay to account for powering up of Arduino and lag to get LCD running
+  delay(1000);
   // set up the LCD's number of columns and rows: 
   lcd.begin(16, 2);
 
@@ -67,6 +70,27 @@ void setup()
 
 void loop()
 { 
+  // button commands
+  int reading = digitalRead(channelUp);
+  
+  if (reading != lastButtonState) {
+    lastDebounceTime = millis();
+  }
+
+  if ((millis() - lastDebounceTime) > debounceDelay) {
+    if (reading != buttonState) {
+      buttonState = reading;
+      Serial.println(buttonState);
+      if (buttonState == HIGH) {
+        channel = radio.seekUp();
+        displayInfo();
+      }
+    }
+  }
+
+  lastButtonState = reading;
+  
+  // keyboard serial commands
   if (Serial.available())
   {
     Serial.println("serial available");
