@@ -10,33 +10,34 @@ int DB7 = 13;
 int E = 9;
 int RS = 7;
 
+// pins for radio
 int resetPin = 2;
 int SDIO = SCL;
 int SCLK = SDA;
+
+// vars for radio
 int channel;
 int volume;
 char rdsBuffer[10];
+const int UPDATE_INTERVAL_MILLIS = 16000;
+bool updatingRDS = false;
+uint32_t timer = millis();
 
 // button controls
 //int channelDown = 4;
 //int channelUp = 3;
 //int val = 0;
 
-LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
+void updateRDS();
+void updateLCD();
+void displayInfo();
 
+LiquidCrystal lcd(RS, E, DB4, DB5, DB6, DB7);
 Si4703_Breakout radio(resetPin, SDIO, SCLK);
 
 void setup()
 {
   Serial.begin(9600);
-  Serial.println("\n\nSi4703_Breakout Test Sketch");
-  Serial.println("===========================");  
-  Serial.println("a b     Favourite stations");
-  Serial.println("+ -     Volume (max 15)");
-  Serial.println("u d     Seek up / down");
-  Serial.println("r       Listen for RDS Data (15 sec timeout)");
-  Serial.println("Send me a command letter.");
-
   // define pushbutton pins as inputs
 //  pinMode(channelDown,INPUT);
 //  pinMode(channelUp,INPUT);
@@ -54,16 +55,18 @@ void setup()
   lcd.print("     Aloha      ");
 
   radio.powerOn();
-  radio.setVolume(15);
+
+  volume = 15;
+  radio.setVolume(volume);
 
   channel = 883; // Jazz
   radio.setChannel(channel);
+  
+  updateLCD();
 }
 
 void loop()
-{
-  updateLCD();
-  
+{ 
   if (Serial.available())
   {
     Serial.println("serial available");
@@ -106,47 +109,62 @@ void loop()
     }
     else if (ch == 'r')
     {
-      Serial.println("RDS listening");
-      radio.readRDS(rdsBuffer, 15000);
-      Serial.print("RDS heard:");
-      Serial.println(rdsBuffer);      
+      updateRDS();
     }
+  }
+
+  if (timer > millis())  timer = millis();
+
+  if (millis() - timer > UPDATE_INTERVAL_MILLIS) {
+    Serial.println("Time to update RDS");
+    timer = millis();
+    updateRDS();
+  }
+}
+
+void updateRDS()
+{
+  if (updatingRDS == false) {
+    updatingRDS = true;
+    Serial.println("RDS listening");
+    radio.readRDS(rdsBuffer, 15000);
+    Serial.print("RDS heard:");
+    Serial.println(rdsBuffer);
+    updateLCD();
   }
 }
 
 void updateLCD()
-{
-  radio.readRDS(rdsBuffer, 15000);
-  Serial.println(rdsBuffer);
-  
+{ 
   //convert the integer channel into a string to add decimal place and "MHz" before displaying on LCD
   String channelString = String(channel); 
   String frequency;
-    if (channelString.length() == 3) //if the frequency is 3 digits, place a decimal point after the second digit
-    {
-        frequency = channelString.substring(0,2) + "." + channelString.substring(2) + " MHz";
-    }
-    else if (channelString.length() == 4) //if the frequency is 4 digits, place a decimal point after the third digit
-    {
-        frequency = channelString.substring(0,3) + "." + channelString.substring(3) + " MHz";
-    }
-
-    // rds info on first line
-    lcd.setCursor(0,0);
-    lcd.print("                ");
-    lcd.setCursor(0,0);
-    lcd.print(rdsBuffer);
-    
-    //first clear line 1 of the display to account for transition between 3 and 4 digit frequencies
-    lcd.setCursor(0,1);
-    lcd.print("                ");
-    //update the frequency on the LCD
-    lcd.setCursor(4,1);
-    lcd.print(frequency);
+  if (channelString.length() == 3) //if the frequency is 3 digits, place a decimal point after the second digit
+  {
+      frequency = channelString.substring(0,2) + "." + channelString.substring(2) + " MHz";
+  }
+  else if (channelString.length() == 4) //if the frequency is 4 digits, place a decimal point after the third digit
+  {
+      frequency = channelString.substring(0,3) + "." + channelString.substring(3) + " MHz";
+  }
+  
+  //first clear line 1 of the display to account for transition between 3 and 4 digit frequencies
+  lcd.setCursor(0,1);
+  lcd.print("                ");
+  //update the frequency on the LCD
+  lcd.setCursor(4,1);
+  lcd.print(frequency);
+  
+  // rds info on first line
+  lcd.setCursor(0,0);
+  lcd.print("                ");
+  lcd.setCursor(0,0);
+  lcd.print(rdsBuffer);
 }
 
 void displayInfo()
 {
    Serial.print("Channel:"); Serial.print(channel);
    Serial.print(" Volume:"); Serial.println(volume);
+   updateLCD();
 }
