@@ -97,13 +97,13 @@ void loop()
     } 
     else if (ch == 'a')
     {
-      channel = 883; // Jazz
+      channel = 883;
       radio.setChannel(channel);
       displayInfo();
     }
     else if (ch == 'b')
     {
-      channel = 974; // BBC R4
+      channel = 931;
       radio.setChannel(channel);
       displayInfo();
     }
@@ -113,13 +113,13 @@ void loop()
     }
   }
 
-  if (timer > millis())  timer = millis();
-
-  if (millis() - timer > UPDATE_INTERVAL_MILLIS) {
-    Serial.println("Time to update RDS");
-    timer = millis();
-    updateRDS();
-  }
+//  if (timer > millis())  timer = millis();
+//
+//  if (millis() - timer > UPDATE_INTERVAL_MILLIS) {
+//    Serial.println("Time to update RDS");
+//    timer = millis();
+//    updateRDS();
+//  }
 }
 
 void updateRDS()
@@ -131,6 +131,7 @@ void updateRDS()
     Serial.print("RDS heard:");
     Serial.println(rdsBuffer);
     updateLCD();
+    updatingRDS = false;
   }
 }
 
