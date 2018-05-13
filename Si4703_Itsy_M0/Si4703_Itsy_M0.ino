@@ -25,10 +25,13 @@ uint32_t timer = millis();
 
 // button controls
 int channelDown = 4;
+int downButtonState;
+int lastDownButtonState = LOW;
 int channelUp = 3;
-int buttonState;
-int lastButtonState = LOW;
-unsigned long lastDebounceTime = 0;
+int upButtonState;
+int lastUpButtonState = LOW;
+unsigned long lastDownDebounceTime = 0;
+unsigned long lastUpDebounceTime = 0;
 unsigned long debounceDelay = 50;
 
 void updateRDS();
@@ -41,11 +44,13 @@ Si4703_Breakout radio(resetPin, SDIO, SCLK);
 void setup()
 {
   Serial.begin(9600);
+  
   // define pushbutton pins as inputs
   pinMode(channelDown,INPUT);
   pinMode(channelUp,INPUT);
 
   delay(1000);
+  
   // set up the LCD's number of columns and rows: 
   lcd.begin(16, 2);
 
@@ -71,24 +76,38 @@ void setup()
 void loop()
 { 
   // button commands
-  int reading = digitalRead(channelUp);
+  int downButtonReading = digitalRead(channelDown);
+  int upButtonReading = digitalRead(channelUp);
   
-  if (reading != lastButtonState) {
-    lastDebounceTime = millis();
+  if (downButtonReading != lastDownButtonState) {
+    lastDownDebounceTime = millis();
+  }
+  if (upButtonReading != lastUpButtonState) {
+    lastUpDebounceTime = millis();
   }
 
-  if ((millis() - lastDebounceTime) > debounceDelay) {
-    if (reading != buttonState) {
-      buttonState = reading;
-      Serial.println(buttonState);
-      if (buttonState == HIGH) {
+  if ((millis() - lastUpDebounceTime) > debounceDelay) {
+    if (downButtonReading != downButtonState) {
+      downButtonState = downButtonReading;
+      if (downButtonState == HIGH) {
+        channel = radio.seekDown();
+        displayInfo();
+      }
+    }
+  }
+
+  if ((millis() - lastDownDebounceTime) > debounceDelay) {
+    if (upButtonReading != upButtonState) {
+      upButtonState = upButtonReading;
+      if (upButtonState == HIGH) {
         channel = radio.seekUp();
         displayInfo();
       }
     }
   }
 
-  lastButtonState = reading;
+  lastDownButtonState = downButtonReading;
+  lastUpButtonState = upButtonReading;
   
   // keyboard serial commands
   if (Serial.available())
