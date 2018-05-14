@@ -6,6 +6,8 @@ Create a small attractive FM radio receiver to use with existing stereo system.
 
 ## Components
 
+![Fritzing Sketch](https://github.com/mimiflynn/fm-radio-receiver/tree/master/fritzing%20sketch/Si4703_Itsy_M0_bb.png)
+
 [SparkFun FM Tuner Evaluation Board - Si4703](https://www.sparkfun.com/products/12938)
 
 [Basic 16x2 Character LCD - White on Black 3.3V](https://www.sparkfun.com/products/9052)
