@@ -37,6 +37,7 @@ unsigned long debounceDelay = 50;
 void displayInfo();
 void listenChannelDownButton();
 void listenChannelUpButton();
+void listenKeyboard();
 void updateRDS();
 void updateLCD();
 
@@ -80,53 +81,8 @@ void loop()
 
   listenChannelDownButton();
   listenChannelUpButton();
+  listenKeyboard();
   
-  // keyboard serial commands
-  if (Serial.available())
-  {
-    Serial.println("serial available");
-    char ch = Serial.read();
-    if (ch == 'u') 
-    {
-      channel = radio.seekUp();
-      displayInfo();
-    } 
-    else if (ch == 'd') 
-    {
-      channel = radio.seekDown();
-      displayInfo();
-    } 
-    else if (ch == '+') 
-    {
-      volume ++;
-      if (volume == 16) volume = 15;
-      radio.setVolume(volume);
-      displayInfo();
-    } 
-    else if (ch == '-') 
-    {
-      volume --;
-      if (volume < 0) volume = 0;
-      radio.setVolume(volume);
-      displayInfo();
-    } 
-    else if (ch == 'a')
-    {
-      channel = 883;
-      radio.setChannel(channel);
-      displayInfo();
-    }
-    else if (ch == 'b')
-    {
-      channel = 931;
-      radio.setChannel(channel);
-      displayInfo();
-    }
-    else if (ch == 'r')
-    {
-      updateRDS();
-    }
-  }
 
 //  if (timer > millis())  timer = millis();
 //
@@ -178,6 +134,55 @@ void listenChannelUpButton() {
   }
 
   lastUpButtonState = upButtonReading;
+}
+
+void listenKeyboard() {
+  // keyboard serial commands
+  if (Serial.available())
+  {
+    Serial.println("serial available");
+    char ch = Serial.read();
+    if (ch == 'u') 
+    {
+      channel = radio.seekUp();
+      displayInfo();
+    } 
+    else if (ch == 'd') 
+    {
+      channel = radio.seekDown();
+      displayInfo();
+    } 
+    else if (ch == '+') 
+    {
+      volume ++;
+      if (volume == 16) volume = 15;
+      radio.setVolume(volume);
+      displayInfo();
+    } 
+    else if (ch == '-') 
+    {
+      volume --;
+      if (volume < 0) volume = 0;
+      radio.setVolume(volume);
+      displayInfo();
+    } 
+    else if (ch == 'a')
+    {
+      channel = 883;
+      radio.setChannel(channel);
+      displayInfo();
+    }
+    else if (ch == 'b')
+    {
+      channel = 931;
+      radio.setChannel(channel);
+      displayInfo();
+    }
+    else if (ch == 'r')
+    {
+      updateRDS();
+    }
+  }
 }
 
 void updateRDS()
