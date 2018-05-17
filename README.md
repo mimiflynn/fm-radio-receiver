@@ -14,6 +14,8 @@ Create a small attractive FM radio receiver to use with existing stereo system.
 
 [Adafruit ItsyBitsy M0 Express](https://www.adafruit.com/product/3727)
 
+[IR (Infrared) Receiver Sensor - TSOP38238](https://www.adafruit.com/product/157)
+
 ## References
 
 [Arduino Library for the SparkFun FM Tuner Basic Breakout - Si4703](https://github.com/sparkfun/SparkFun_Si4703_Arduino_Library)
@@ -25,3 +27,5 @@ Create a small attractive FM radio receiver to use with existing stereo system.
 [Si4700/01/02/03 PROGRAMMING GUIDE](https://cdn.sparkfun.com/assets/learn_tutorials/2/7/4/AN230.pdf)
 
 [Debounce Button](https://www.arduino.cc/en/Tutorial/Debounce)
+
+[IR Sensor](https://learn.adafruit.com/ir-sensor/overview)
