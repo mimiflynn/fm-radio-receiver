@@ -130,6 +130,12 @@ void listenRemote() {
     radio.setChannel(channel);
     displayInfo();
   }
+  if (IRcompare(numberpulses, IRtimeShift, sizeof(IRtimeShift)/4)) {
+    Serial.println("source");
+    channel = 923;
+    radio.setChannel(channel);
+    displayInfo();
+  }
   
   delay(500);
 }
@@ -337,18 +343,11 @@ int listenForIR(void) {
     highpulse = lowpulse = 0; // start out with no pulse length
   
   while (digitalRead(IRpin)) { // this is too slow!
-//    while (1 << IRpin) {
        // pin is still HIGH
-
        // count off another few microseconds
        highpulse++;
        delayMicroseconds(RESOLUTION);
 
-       // If the pulse is too long, we 'timed out' - either nothing
-       // was received or the code is finished, so print what
-       // we've grabbed so far, and then reset
-       
-       // KGO: Added check for end of receive buffer
        if (((highpulse >= MAXPULSE) && (currentpulse != 0))|| currentpulse == NUMPULSES) {
          printpulses();
          return currentpulse;
