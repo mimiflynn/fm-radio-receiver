@@ -3,7 +3,7 @@
 #include <Wire.h>
 #include "ircodes.h"
 
-#define DEBUG true
+//#define DEBUG true
 
 // define the pins for the LCD 
 int DB4 = 10;
