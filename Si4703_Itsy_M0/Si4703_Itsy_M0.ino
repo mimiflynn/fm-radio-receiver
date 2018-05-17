@@ -106,6 +106,34 @@ void loop()
 //  }
 }
 
+void listenRemote() {
+  int numberpulses;
+  
+  numberpulses = listenForIR();
+  
+  Serial.println("Heard ");
+  Serial.print(numberpulses);
+  Serial.println("-pulse long IR signal");
+  if (IRcompare(numberpulses, IRchannelUp, sizeof(IRchannelUp)/4)) {
+    Serial.println("channel up");
+    channel = radio.seekUp();
+    displayInfo();
+  }
+  if (IRcompare(numberpulses, IRchannelDown, sizeof(IRchannelDown)/4)) {
+    Serial.println("channel down");
+    channel = radio.seekDown();
+    displayInfo();
+  }
+  if (IRcompare(numberpulses, IRsource, sizeof(IRsource)/4)) {
+    Serial.println("source");
+    channel = 883;
+    radio.setChannel(channel);
+    displayInfo();
+  }
+  
+  delay(500);
+}
+
 void listenChannelDownButton()
 {
     // Channel down button listener
@@ -244,27 +272,6 @@ void displayInfo()
    Serial.print("Channel:"); Serial.print(channel);
    Serial.print(" Volume:"); Serial.println(volume);
    updateLCD();
-}
-
-void listenRemote() {
-  int numberpulses;
-  
-  numberpulses = listenForIR();
-  
-  Serial.println("Heard ");
-  Serial.print(numberpulses);
-  Serial.println("-pulse long IR signal");
-  if (IRcompare(numberpulses, IRchannelUp, sizeof(IRchannelUp)/4)) {
-    Serial.println("channel up");
-    channel = radio.seekUp();
-    displayInfo();
-  }
-  if (IRcompare(numberpulses, IRchannelDown, sizeof(IRchannelDown)/4)) {
-    Serial.println("channel down");
-    channel = radio.seekDown();
-    displayInfo();
-  }
-  delay(500);
 }
 
 boolean IRcompare(int numpulses, int Signal[], int refsize) {
