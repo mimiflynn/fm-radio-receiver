@@ -3,7 +3,7 @@
 #include <Wire.h>
 #include "ircodes.h"
 
-//#define DEBUG true
+#define DEBUG true
 
 // define the pins for the LCD 
 int DB4 = 10;
@@ -114,27 +114,31 @@ void listenRemote() {
   Serial.println("Heard ");
   Serial.print(numberpulses);
   Serial.println("-pulse long IR signal");
-  if (IRcompare(numberpulses, IRchannelUp, sizeof(IRchannelUp)/4)) {
-    Serial.println("channel up");
-    channel = radio.seekUp();
-    displayInfo();
-  }
-  if (IRcompare(numberpulses, IRchannelDown, sizeof(IRchannelDown)/4)) {
-    Serial.println("channel down");
-    channel = radio.seekDown();
-    displayInfo();
-  }
-  if (IRcompare(numberpulses, IRsource, sizeof(IRsource)/4)) {
-    Serial.println("source");
-    channel = 883;
-    radio.setChannel(channel);
-    displayInfo();
-  }
-  if (IRcompare(numberpulses, IRtimeShift, sizeof(IRtimeShift)/4)) {
-    Serial.println("source");
-    channel = 923;
-    radio.setChannel(channel);
-    displayInfo();
+
+  // ignore random pulses from somewhere
+  if (numberpulses > 30) {
+    if (IRcompare(numberpulses, IRchannelUp, sizeof(IRchannelUp)/4)) {
+      Serial.println("channel up");
+      channel = radio.seekUp();
+      displayInfo();
+    }
+    if (IRcompare(numberpulses, IRchannelDown, sizeof(IRchannelDown)/4)) {
+      Serial.println("channel down");
+      channel = radio.seekDown();
+      displayInfo();
+    }
+    if (IRcompare(numberpulses, IRsource, sizeof(IRsource)/4)) {
+      Serial.println("source");
+      channel = 883;
+      radio.setChannel(channel);
+      displayInfo();
+    }
+    if (IRcompare(numberpulses, IRtimeShift, sizeof(IRtimeShift)/4)) {
+      Serial.println("time shift");
+      channel = 923;
+      radio.setChannel(channel);
+      displayInfo();
+    }
   }
   
   delay(500);
